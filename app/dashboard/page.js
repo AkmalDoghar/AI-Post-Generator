@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AppShell from "../../components/AppShell";
 
 const PLATFORMS = [
@@ -9,8 +9,6 @@ const PLATFORMS = [
   { id: "instagram", label: "Instagram" },
   { id: "facebook", label: "Facebook" },
 ];
-
-export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
   const [username, setUsername] = useState("");
@@ -23,7 +21,6 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     setMounted(true);
@@ -39,13 +36,13 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (searchParams.get("new") !== "1") return;
+    if (new URLSearchParams(window.location.search).get("new") !== "1") return;
     setSummary(null);
     setDraft("");
     setPlatform("linkedin");
     setError("");
     router.replace("/dashboard");
-  }, [router, searchParams]);
+  }, [router]);
 
   async function pullActivity() {
     setError("");
