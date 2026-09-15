@@ -18,6 +18,17 @@ Fill in `.env.local`:
   with `public_repo` and `read:user` scope (classic token is fine for this).
 - `GITHUB_USERNAME` — your GitHub username (optional if you always type it in the UI).
 - `ANTHROPIC_API_KEY` — from [console.anthropic.com](https://console.anthropic.com).
+- `MONGODB_URI` — your MongoDB Atlas connection string.
+- `AUTH_SECRET` — a random string of at least 32 characters used to sign HttpOnly sessions.
+- `AUTH_URL` — the app URL, `http://localhost:3000` for local development.
+- `AUTH_GITHUB_CALLBACK_URL` — exactly `http://localhost:3000/api/auth/github/callback` for local development.
+- `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` — optional GitHub OAuth app credentials.
+
+For GitHub OAuth, set the callback URL in the OAuth app to
+`http://localhost:3000/api/auth/github/callback` (or the matching production URL).
+Email/password signup hashes passwords with bcrypt and creates default user settings.
+Sessions use signed HttpOnly cookies. GitHub access tokens are only used during the
+OAuth exchange and are not stored in the User document.
 
 Then run:
 

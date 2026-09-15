@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import BrandLogo from "./BrandLogo";
 
 const navItems = [
   { href: "/dashboard", label: "Overview" },
@@ -14,31 +15,45 @@ const navItems = [
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
-    const authed = window.localStorage.getItem("gitpulse-auth");
-    if (!authed && pathname !== "/login") {
-      router.replace("/login");
-    }
-  }, [pathname, router]);
+    let active = true;
 
-  const handleLogout = () => {
-    window.localStorage.removeItem("gitpulse-auth");
-    router.push("/login");
+    fetch("/api/auth/me")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (active && data?.user) setUser(data.user);
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/login");
+    router.refresh();
   };
+
+  const displayName = user?.name || "Workspace member";
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("") || "WM";
 
   return (
     <div className="app-shell min-h-screen text-slate-100">
       <div className="mx-auto flex max-w-[1600px]">
         <aside className="hidden min-h-screen w-72 border-r border-white/10 bg-slate-950/60 p-6 lg:flex lg:flex-col">
-          <div className="mb-10 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/30">
-              G
-            </div>
-            <div>
-              <div className="text-lg font-semibold tracking-tight">GitPulse</div>
-              <div className="text-xs text-slate-400">Build in public</div>
-            </div>
+          <div className="mb-10">
+            <BrandLogo compact />
+            <div className="mt-2 pl-1 text-xs text-slate-400">Build in public</div>
           </div>
 
           <nav className="space-y-2">
@@ -73,9 +88,7 @@ export default function AppShell({ children }) {
           <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
             <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 lg:hidden">
-                  G
-                </div>
+                <div className="lg:hidden"><BrandLogo compact /></div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400">Workspace</p>
                   <h1 className="text-lg font-semibold text-white">GitPulse Studio</h1>
@@ -83,23 +96,25 @@ export default function AppShell({ children }) {
               </div>
 
               <div className="flex items-center gap-3">
-                <button className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 sm:inline-flex">
+                <button onClick={() => router.push("/dashboard?new=1")} className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-cyan-400/40 hover:text-white sm:inline-flex">
                   + New draft
                 </button>
-                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-1.5">
+                <div className="relative">
+                  <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen} className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 text-left transition hover:border-cyan-400/40">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-cyan-500 text-xs font-bold text-slate-950">
-                    AD
+                    {initials}
                   </div>
                   <div className="hidden text-left sm:block">
-                    <div className="text-xs font-medium text-white">Adnan</div>
-                    <div className="text-[10px] text-slate-400">Pro plan</div>
+                    <div className="text-xs font-medium text-white">{displayName}</div>
+                    <div className="max-w-[12rem] truncate text-[10px] text-slate-400">{user?.email || "Loading account..."}</div>
                   </div>
-                  <button
-                    onClick={handleLogout}
-                    className="rounded-full border border-white/10 bg-slate-900 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-300 transition hover:border-cyan-400/40 hover:text-white"
-                  >
-                    logout
+                  <span className="text-xs text-slate-500">⌄</span>
                   </button>
+                  {profileOpen && <div className="profile-menu">
+                    <div className="profile-menu-heading"><strong>{displayName}</strong><span>{user?.email || "Account"}</span></div>
+                    <Link href="/settings" onClick={() => setProfileOpen(false)}>Account settings</Link>
+                    <button type="button" onClick={handleLogout}>Log out</button>
+                  </div>}
                 </div>
               </div>
             </div>

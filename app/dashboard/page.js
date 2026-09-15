@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "../../components/AppShell";
 
 const PLATFORMS = [
   { id: "linkedin", label: "LinkedIn" },
   { id: "instagram", label: "Instagram" },
   { id: "facebook", label: "Facebook" },
-  { id: "twitter", label: "Twitter / X" },
 ];
 
 export default function DashboardPage() {
-  const [username, setUsername] = useState("octocat");
+  const [username, setUsername] = useState("");
   const [days, setDays] = useState(7);
   const [summary, setSummary] = useState(null);
   const [platform, setPlatform] = useState("linkedin");
@@ -20,10 +20,30 @@ export default function DashboardPage() {
   const [loadingDraft, setLoadingDraft] = useState(false);
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    fetch("/api/github-connection")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (data?.connected) setUsername(data.username);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    setSummary(null);
+    setDraft("");
+    setPlatform("linkedin");
+    setError("");
+    router.replace("/dashboard");
+  }, [router, searchParams]);
 
   async function pullActivity() {
     setError("");
@@ -38,6 +58,11 @@ export default function DashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch activity.");
       setSummary(data);
+      await fetch("/api/github-connection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim() }),
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,39 +99,46 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="dashboard-page space-y-6">
+        <div className="dashboard-heading">
           <div>
-            <p className="section-kicker">Dashboard</p>
-            <h2 className="page-title mt-2">Generate your GitPulse post</h2>
+            <div className="dashboard-kicker"><span /> Content studio</div>
+            <h2 className="dashboard-title">Turn your week into a story.</h2>
+            <p className="dashboard-subtitle">Pull the work, find the signal, and shape a post worth sharing.</p>
           </div>
-          <div className="data-pill inline-flex items-center rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.2em]">
-            {mounted ? "Live sync" : "Loading..."}
-          </div>
+          <div className="dashboard-status"><i /> {mounted ? "Workspace live" : "Loading workspace"}</div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
-          <aside className="glass-panel space-y-5 rounded-3xl p-5">
-            <div>
-              <label className="mb-2 block text-xs uppercase tracking-[0.22em] text-slate-400">
-                GitHub username
-              </label>
+        <div className="dashboard-stats">
+          <div><span>Activity source</span><strong>GitHub</strong><small>Ready to sync</small></div>
+          <div><span>Draft status</span><strong>{draft ? "Ready" : "Waiting"}</strong><small>{draft ? `${selectedPlatformLabel} draft` : "Pull activity to begin"}</small></div>
+          <div><span>Publishing mode</span><strong>Manual review</strong><small>Nothing posts automatically</small></div>
+        </div>
+
+        <div className="dashboard-workspace">
+          <aside className="dashboard-source">
+            <div className="dashboard-panel-heading"><span className="dashboard-step">01</span><div><h3>Find your signal</h3><p>Choose a GitHub source and time window.</p></div></div>
+            <div className="dashboard-field">
+              <label>GitHub username</label>
               <input
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="octocat"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setSummary(null);
+                  setDraft("");
+                  setError("");
+                }}
+                placeholder="your-github-name"
+                className="dashboard-input"
               />
             </div>
 
-            <div>
-              <label className="mb-2 block text-xs uppercase tracking-[0.22em] text-slate-400">
-                Time window
-              </label>
+            <div className="dashboard-field">
+              <label>Time window</label>
               <select
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
-                className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+                className="dashboard-input"
               >
                 <option value={1}>Last day</option>
                 <option value={7}>Last 7 days</option>
@@ -117,38 +149,38 @@ export default function DashboardPage() {
             <button
               onClick={pullActivity}
               disabled={!username || loadingActivity}
-              className="w-full rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-emerald-400 px-4 py-3 font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
+              className="dashboard-primary-button"
             >
-              {loadingActivity ? "Pulling activity..." : "Pull activity"}
+              {loadingActivity ? "Syncing GitHub..." : "Connect & pull activity"}
             </button>
 
             {error && (
-              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+              <div className="dashboard-error">
                 {error}
               </div>
             )}
 
             {summary && (
-              <div className="metric-card p-4">
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <div className="dashboard-activity-card">
+                <div className="dashboard-card-label">
                   Activity · last {summary.windowDays}d
                 </div>
 
-                <div className="mt-4 space-y-2 text-sm text-slate-200">
-                  <div className="flex items-center justify-between">
+                <div className="dashboard-activity-list">
+                  <div>
                     <span>Commits</span>
                     <span className="font-semibold text-emerald-300">+ {summary.commitCount}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div>
                     <span>Pull requests</span>
                     <span className="font-semibold text-emerald-300">+ {summary.pullRequests.length}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div>
                     <span>New repos</span>
                     <span className="font-semibold text-emerald-300">+ {summary.newRepos.length}</span>
                   </div>
                   {summary.topLanguages.length > 0 && (
-                    <div className="pt-2 text-xs text-slate-400">
+                    <div className="dashboard-languages">
                       Languages: {summary.topLanguages.join(", ")}
                     </div>
                   )}
@@ -157,17 +189,18 @@ export default function DashboardPage() {
             )}
           </aside>
 
-          <section className="glass-panel space-y-5 rounded-3xl p-5">
-            <div className="flex flex-wrap gap-2">
+          <section className="dashboard-draft-panel">
+            <div className="dashboard-panel-heading"><span className="dashboard-step">02</span><div><h3>Shape the story</h3><p>Select a platform and generate a human draft.</p></div></div>
+            <div className="dashboard-platforms">
               {PLATFORMS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => draftPost(p.id)}
                   disabled={!summary || loadingDraft}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  className={`dashboard-platform ${
                     platform === p.id
-                      ? "border-cyan-400 bg-cyan-500/15 text-white"
-                      : "border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/40"
+                      ? "dashboard-platform-active"
+                      : ""
                   }`}
                 >
                   {p.label}
@@ -176,15 +209,17 @@ export default function DashboardPage() {
             </div>
 
             {!summary && (
-              <div className="editor-surface rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-8 text-center text-slate-400">
-                Pull your GitHub activity to generate a social post draft.
+              <div className="dashboard-empty-state">
+                <span className="dashboard-empty-icon">✦</span>
+                <strong>Your story is waiting.</strong>
+                <p>Pull GitHub activity on the left to turn a week of work into a polished draft.</p>
               </div>
             )}
 
             {summary && (
-              <div className="editor-surface overflow-hidden rounded-2xl">
-                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.22em] text-slate-400">
+              <div className="dashboard-editor">
+                <div className="dashboard-editor-header">
+                  <div className="dashboard-card-label">
                     Draft · {selectedPlatformLabel}
                   </div>
                   <button
@@ -195,7 +230,7 @@ export default function DashboardPage() {
                       } catch {}
                     }}
                     disabled={!draft}
-                    className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="dashboard-copy-button"
                   >
                     Copy
                   </button>
@@ -207,12 +242,12 @@ export default function DashboardPage() {
                   rows={12}
                   readOnly={loadingDraft}
                   placeholder="Your draft will appear here..."
-                  className="w-full resize-none bg-transparent p-4 text-sm leading-7 text-slate-100 outline-none placeholder:text-slate-500"
+                  className="dashboard-textarea"
                 />
               </div>
             )}
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+            <div className="dashboard-note">
               Nothing is posted automatically. Review, edit, and copy your draft into the platform you want to publish on.
             </div>
           </section>

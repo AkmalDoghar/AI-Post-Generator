@@ -1,47 +1,50 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import AppShell from "../../components/AppShell";
 
-const drafts = [
-  { title: "Weekly product update", platform: "LinkedIn", date: "Jun 12, 2026", status: "Published" },
-  { title: "Shipping momentum", platform: "Instagram", date: "Jun 09, 2026", status: "Draft" },
-  { title: "Debugging wins", platform: "Twitter / X", date: "Jun 04, 2026", status: "Scheduled" },
-  { title: "Week in code", platform: "Facebook", date: "May 30, 2026", status: "Published" },
-];
+const drafts = [];
 
 export default function HistoryPage() {
+  const [query, setQuery] = useState("");
+  const [range, setRange] = useState("7");
+  const filteredDrafts = useMemo(() => drafts.filter((draft) => {
+    const matchesQuery = draft.title.toLowerCase().includes(query.toLowerCase()) || draft.platform.toLowerCase().includes(query.toLowerCase());
+    const age = Math.floor((new Date("2026-09-15") - new Date(draft.date)) / 86400000);
+    return matchesQuery && age <= Number(range);
+  }), [query, range]);
+
   return (
     <AppShell>
-      <div className="space-y-6">
-        <div className="flex items-end justify-between">
+      <div className="studio-page">
+        <div className="studio-heading">
           <div>
-            <p className="section-kicker">Drafts</p>
-            <h2 className="page-title mt-2">Recent generation history</h2>
+            <div className="studio-kicker"><span /> Content archive</div>
+            <h2 className="studio-title">Your stories, in one place.</h2>
+            <p className="studio-subtitle">Review what you have shaped, saved, and shared.</p>
           </div>
-          <button className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs uppercase tracking-[0.2em] text-slate-200">
-            Filter
-          </button>
+          <div className="studio-count">{filteredDrafts.length} published posts</div>
         </div>
 
-        <div className="glass-panel overflow-hidden rounded-3xl">
-          <div className="grid grid-cols-[1.5fr_0.9fr_0.7fr_0.8fr] border-b border-white/10 px-4 py-3 text-[11px] uppercase tracking-[0.22em] text-slate-400">
-            <div>Draft</div>
-            <div>Platform</div>
-            <div>Date</div>
-            <div>Status</div>
-          </div>
+        <div className="archive-toolbar">
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search published posts" />
+          <div className="archive-filters">{[["7", "Last 7 days"], ["30", "Last 30 days"]].map(([value, label]) => <button key={value} onClick={() => setRange(value)} className={range === value ? "archive-filter-active" : ""}>{label}</button>)}</div>
+        </div>
 
-          {drafts.map((draft) => (
-            <div key={draft.title} className="grid grid-cols-[1.5fr_0.9fr_0.7fr_0.8fr] items-center border-b border-white/10 px-4 py-4 text-sm last:border-b-0">
-              <div className="font-medium text-white">{draft.title}</div>
-              <div className="text-slate-300">{draft.platform}</div>
-              <div className="text-slate-400">{draft.date}</div>
-              <div>
-                <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300">
-                  {draft.status}
-                </span>
-              </div>
+        <div className="archive-list">
+          <div className="archive-list-header"><span>Published post</span><span>Platform</span><span>Date</span><span>Status</span></div>
+
+          {filteredDrafts.map((draft) => (
+            <div key={draft.title} className="archive-row">
+              <div><strong>{draft.title}</strong><small>Published story</small></div>
+              <div className="archive-platform">{draft.platform}</div>
+              <div className="archive-date">{new Date(`${draft.date}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
+              <div><span className={`archive-status archive-status-${draft.status.toLowerCase()}`}>{draft.status}</span></div>
             </div>
           ))}
+          {!filteredDrafts.length && <div className="archive-empty">No drafts match this filter.</div>}
         </div>
+        <div className="archive-footer">Showing published posts from the selected time window.</div>
       </div>
     </AppShell>
   );

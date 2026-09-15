@@ -4,7 +4,8 @@ import { fetchActivitySummary } from "../../../lib/github";
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const username = searchParams.get("username") || process.env.GITHUB_USERNAME;
-  const days = Number(searchParams.get("days") || 7);
+  const requestedDays = Number(searchParams.get("days") || 7);
+  const days = [1, 7, 30].includes(requestedDays) ? requestedDays : 7;
 
   if (!username) {
     return NextResponse.json(
