@@ -63,6 +63,7 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim() }),
       });
+      await draftPost(data, "linkedin");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -70,8 +71,8 @@ export default function DashboardPage() {
     }
   }
 
-  async function draftPost(nextPlatform = platform) {
-    if (!summary) return;
+  async function draftPost(activitySummary = summary, nextPlatform = platform) {
+    if (!activitySummary) return;
     setError("");
     setLoadingDraft(true);
     setPlatform(nextPlatform);
@@ -80,7 +81,7 @@ export default function DashboardPage() {
       const res = await fetch("/api/generate-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ summary, platform: nextPlatform }),
+        body: JSON.stringify({ summary: activitySummary, platform: nextPlatform }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate post.");
@@ -151,7 +152,7 @@ export default function DashboardPage() {
               disabled={!username || loadingActivity}
               className="dashboard-primary-button"
             >
-              {loadingActivity ? "Syncing GitHub..." : "Connect & pull activity"}
+              {loadingActivity ? "Analyzing & drafting..." : "Connect & create post"}
             </button>
 
             {error && (
@@ -195,7 +196,7 @@ export default function DashboardPage() {
               {PLATFORMS.map((p) => (
                 <button
                   key={p.id}
-                  onClick={() => draftPost(p.id)}
+                  onClick={() => draftPost(summary, p.id)}
                   disabled={!summary || loadingDraft}
                   className={`dashboard-platform ${
                     platform === p.id
