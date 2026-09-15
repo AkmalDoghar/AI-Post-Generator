@@ -10,6 +10,8 @@ const PLATFORMS = [
   { id: "facebook", label: "Facebook" },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default function DashboardPage() {
   const [username, setUsername] = useState("");
   const [days, setDays] = useState(7);
