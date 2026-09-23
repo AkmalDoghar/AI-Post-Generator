@@ -49,12 +49,12 @@ export async function GET(request) {
       await user.save();
     }
 
-    const response = NextResponse.redirect(new URL("/dashboard", getAppUrl()));
+    const response = NextResponse.redirect(new URL("/dashboard", url.origin));
     response.cookies.set(SESSION_COOKIE, await createSessionToken(user), sessionCookieOptions);
     response.cookies.set("gitpulse-oauth-state", "", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 });
     return response;
   } catch (error) {
     console.error("GitHub sign-in failed:", error.message);
-    return NextResponse.redirect(new URL("/login?error=github_failed", getAppUrl()));
+    return NextResponse.redirect(new URL("/login?error=github_failed", url.origin));
   }
 }

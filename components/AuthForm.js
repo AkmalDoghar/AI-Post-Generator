@@ -83,11 +83,11 @@ export default function AuthForm({ mode, variant = "default" }) {
     : "";
 
   return (
-    <div className={`auth-card w-full max-w-md rounded-2xl border p-5 shadow-xl sm:p-6 ${isLoginVariant ? "auth-login-card border-orange-200/15 bg-[#171719] shadow-orange-950/30" : "border-white/10 bg-slate-900/95 shadow-black/20"}`}>
+    <div className="auth-card w-full max-w-md rounded-2xl border p-5 shadow-xl sm:p-6" style={{ background: "rgba(10,22,18,0.9)", borderColor: "rgba(52,211,153,0.15)", boxShadow: "0 24px 70px rgba(0,0,0,0.4)", backdropFilter: "blur(20px)" }}>
       <div className="mb-5">
-        <p className={`text-xs uppercase tracking-[0.25em] ${isLoginVariant ? "text-orange-300" : "text-slate-400"}`}>{isSignup ? "Start building" : "Welcome back"}</p>
-        <h2 className="mt-1.5 text-2xl font-bold text-white">{isSignup ? "Create your account" : "Sign in to GitPulse"}</h2>
-        <p className="mt-1.5 text-sm leading-5 text-slate-400">{isSignup ? "Create your workspace in a few seconds." : "Log in to continue to your workspace."}</p>
+        <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.22em", color: "#34d399" }}>{isSignup ? "Start building" : "Welcome back"}</p>
+        <h2 className="mt-1.5 text-2xl font-bold" style={{ color: "#f0faf8" }}>{isSignup ? "Create your account" : "Sign in to GitPulse"}</h2>
+        <p className="mt-1.5 text-sm leading-5" style={{ color: "#4a7a70" }}>{isSignup ? "Create your workspace in a few seconds." : "Log in to continue to your workspace."}</p>
       </div>
 
       {(serverError || githubError || forgotMessage) && <div role="alert" className={`mb-5 rounded-xl border px-4 py-3 text-sm ${forgotMessage && !serverError && !githubError ? "border-cyan-400/25 bg-cyan-400/10 text-cyan-100" : "border-red-400/25 bg-red-400/10 text-red-100"}`}>{serverError || githubError || forgotMessage}</div>}
@@ -103,16 +103,16 @@ export default function AuthForm({ mode, variant = "default" }) {
           </div>
         </>}
         {!isSignup && <div className="flex justify-end"><Link href="/forgot-password" className="text-sm text-cyan-300 transition hover:text-cyan-200">Forgot password?</Link></div>}
-        <button type="submit" disabled={loading} className={`w-full rounded-xl px-4 py-3 font-semibold text-slate-950 shadow-lg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 ${isLoginVariant ? "bg-orange-300 shadow-orange-300/10 hover:bg-orange-200" : "bg-gradient-to-r from-cyan-400 via-blue-500 to-emerald-400 shadow-cyan-500/20"}`}>{loading ? (isSignup ? "Creating account..." : "Signing in...") : (isSignup ? "Create account" : "Log in")}</button>
+        <button type="submit" disabled={loading} style={{ width: "100%", borderRadius: "0.75rem", padding: "0.75rem 1rem", fontWeight: 700, color: "#051a12", background: "linear-gradient(135deg, #34d399, #22d3ee)", boxShadow: "0 10px 28px rgba(52,211,153,0.22)", transition: "transform 0.2s, box-shadow 0.2s", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }} onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 14px 36px rgba(52,211,153,0.34)"; }}} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 28px rgba(52,211,153,0.22)"; }}>{loading ? (isSignup ? "Creating account..." : "Signing in...") : (isSignup ? "Create account" : "Log in")}</button>
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-slate-500"><span className="h-px flex-1 bg-white/10" />or<span className="h-px flex-1 bg-white/10" /></div>
-      <button type="button" onClick={handleGitHub} disabled={loading} className={`flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium text-slate-100 transition disabled:cursor-not-allowed disabled:opacity-60 ${isLoginVariant ? "border-white/10 bg-white/[0.04] hover:border-orange-300/40 hover:bg-white/[0.08]" : "border-white/10 bg-white/5 hover:border-cyan-400/40 hover:bg-white/10"}`}>
+      <button type="button" onClick={handleGitHub} disabled={loading} style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "center", gap: "0.6rem", borderRadius: "0.75rem", border: "1px solid rgba(52,211,153,0.15)", padding: "0.72rem 1rem", fontSize: "0.85rem", fontWeight: 500, color: "#c8f0e6", background: "rgba(52,211,153,0.04)", transition: "background 0.2s, border-color 0.2s", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(52,211,153,0.09)"; e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(52,211,153,0.04)"; e.currentTarget.style.borderColor = "rgba(52,211,153,0.15)"; }}>
         <GitHubIcon />
         Continue with GitHub
       </button>
 
-      <p className="mt-5 text-center text-sm text-slate-400">{isSignup ? "Already have an account?" : "Don't have an account?"} <Link href={isSignup ? "/login" : "/signup"} className="font-medium text-cyan-300 hover:text-cyan-200">{isSignup ? "Log in" : "Sign up"}</Link></p>
+      <p style={{ marginTop: "1.25rem", textAlign: "center", fontSize: "0.8rem", color: "#3a5e56" }}>{isSignup ? "Already have an account?" : "Don't have an account?"} <Link href={isSignup ? "/login" : "/signup"} style={{ color: "#34d399", fontWeight: 600 }}>{isSignup ? "Log in" : "Sign up"}</Link></p>
     </div>
   );
 }

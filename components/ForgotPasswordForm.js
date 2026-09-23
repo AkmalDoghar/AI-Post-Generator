@@ -3,6 +3,30 @@
 import Link from "next/link";
 import { useState } from "react";
 
+const inputStyle = {
+  display: "block",
+  width: "100%",
+  marginTop: "0.5rem",
+  borderRadius: "0.75rem",
+  border: "1px solid rgba(52,211,153,0.12)",
+  background: "rgba(5,20,16,0.8)",
+  padding: "0.72rem 1rem",
+  color: "#e8f5f2",
+  outline: "none",
+  fontSize: "0.88rem",
+  transition: "border-color 0.2s",
+};
+
+const labelStyle = {
+  display: "block",
+  fontSize: "0.78rem",
+  fontWeight: 600,
+  color: "#7ab8a8",
+};
+
+const steps = ["email", "otp", "reset", "complete"];
+const stepLabels = ["Enter email", "Verify code", "New password", "Done"];
+
 export default function ForgotPasswordForm() {
   const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
@@ -12,6 +36,8 @@ export default function ForgotPasswordForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const currentStepIndex = steps.indexOf(step);
 
   async function submit(event) {
     event.preventDefault();
@@ -50,29 +76,203 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <div className="auth-card w-full max-w-md rounded-2xl border border-orange-200/15 bg-[#171719] p-5 shadow-xl shadow-orange-950/30 sm:p-6">
-      <p className="text-xs uppercase tracking-[0.25em] text-orange-300">Account recovery</p>
-      <h1 className="mt-1.5 text-2xl font-bold text-white">Reset your password</h1>
-      <p className="mt-1.5 text-sm leading-5 text-slate-400">Verify your email and get back to your workspace.</p>
+    <div style={{
+      background: "rgba(10,22,18,0.9)",
+      border: "1px solid rgba(52,211,153,0.15)",
+      borderRadius: "1.25rem",
+      padding: "2rem",
+      boxShadow: "0 24px 70px rgba(0,0,0,0.4)",
+      backdropFilter: "blur(20px)",
+    }}>
+      {/* Step progress */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "1.75rem" }}>
+        {stepLabels.map((label, i) => {
+          const done = i < currentStepIndex;
+          const active = i === currentStepIndex;
+          return (
+            <div key={label} style={{ display: "flex", alignItems: "center", flex: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.3rem" }}>
+                <div style={{
+                  width: "1.75rem", height: "1.75rem", borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "0.65rem", fontWeight: 700,
+                  background: done || active
+                    ? "linear-gradient(135deg, #34d399, #22d3ee)"
+                    : "rgba(52,211,153,0.08)",
+                  border: `1px solid ${done || active ? "transparent" : "rgba(52,211,153,0.12)"}`,
+                  color: done || active ? "#051a12" : "#2a4540",
+                  transition: "all 0.3s",
+                }}>
+                  {done ? "✓" : i + 1}
+                </div>
+                <span style={{
+                  fontSize: "0.58rem", color: active ? "#34d399" : done ? "#22d3ee" : "#2a4540",
+                  whiteSpace: "nowrap", fontWeight: active ? 700 : 500,
+                }}>
+                  {label}
+                </span>
+              </div>
+              {i < stepLabels.length - 1 && (
+                <div style={{
+                  flex: 1, height: "1px",
+                  background: i < currentStepIndex
+                    ? "linear-gradient(90deg, #34d399, #22d3ee)"
+                    : "rgba(52,211,153,0.1)",
+                  margin: "0 0.3rem", marginBottom: "1.2rem",
+                  transition: "background 0.3s",
+                }} />
+              )}
+            </div>
+          );
+        })}
+      </div>
 
-      {message && <div role="status" className="mt-5 rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">{message}</div>}
-      {error && <div role="alert" className="mt-5 rounded-xl border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-100">{error}</div>}
+      {/* Header */}
+      <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "#34d399", marginBottom: "0.5rem" }}>
+        Account recovery
+      </p>
+      <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#f0faf8", margin: "0 0 0.4rem" }}>
+        Reset your password
+      </h1>
+      <p style={{ color: "#4a7a70", fontSize: "0.82rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
+        Verify your email and get back to your workspace.
+      </p>
 
-      {step === "complete" ? (
-        <Link href="/login" className="mt-6 block w-full rounded-xl bg-orange-300 px-4 py-3 text-center font-semibold text-slate-950 transition hover:bg-orange-200">Back to login</Link>
-      ) : (
-        <form onSubmit={submit} className="mt-5 space-y-4">
-          {step === "email" && <label className="block text-sm font-medium text-slate-200">Email<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="mt-1.5 w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-2.5 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-orange-300 focus:ring-2 focus:ring-orange-400/20" /></label>}
-          {step === "otp" && <label className="block text-sm font-medium text-slate-200">Verification code<input required inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, ""))} placeholder="123456" className="mt-1.5 w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-2.5 text-center text-xl tracking-[0.35em] text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-orange-300 focus:ring-2 focus:ring-orange-400/20" /></label>}
-          {step === "reset" && <>
-            <label className="block text-sm font-medium text-slate-200">New password<input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-2.5 text-slate-100 outline-none transition focus:border-orange-300 focus:ring-2 focus:ring-orange-400/20" /></label>
-            <label className="block text-sm font-medium text-slate-200">Confirm password<input required minLength={8} type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-2.5 text-slate-100 outline-none transition focus:border-orange-300 focus:ring-2 focus:ring-orange-400/20" /></label>
-          </>}
-          <button type="submit" disabled={loading} className="w-full rounded-xl bg-orange-300 px-4 py-3 font-semibold text-slate-950 transition hover:bg-orange-200 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Please wait..." : step === "email" ? "Send verification code" : step === "otp" ? "Verify code" : "Update password"}</button>
-        </form>
+      {/* Messages */}
+      {message && (
+        <div style={{
+          marginBottom: "1.25rem", padding: "0.8rem 1rem", borderRadius: "0.75rem",
+          background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)",
+          color: "#a7f3d0", fontSize: "0.8rem", lineHeight: 1.5,
+        }} role="status">{message}</div>
+      )}
+      {error && (
+        <div style={{
+          marginBottom: "1.25rem", padding: "0.8rem 1rem", borderRadius: "0.75rem",
+          background: "rgba(239,68,68,0.08)", border: "1px solid rgba(248,113,113,0.2)",
+          color: "#fca5a5", fontSize: "0.8rem",
+        }} role="alert">{error}</div>
       )}
 
-      {step !== "complete" && <Link href="/login" className="mt-5 block text-center text-sm text-slate-400 transition hover:text-orange-200">Back to login</Link>}
+      {/* Form */}
+      {step === "complete" ? (
+        <div style={{ textAlign: "center" }}>
+          <div style={{
+            width: "3.5rem", height: "3.5rem", borderRadius: "50%", margin: "0 auto 1rem",
+            background: "linear-gradient(135deg, #34d399, #22d3ee)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "1.5rem", color: "#051a12",
+          }}>✓</div>
+          <p style={{ color: "#a7f3d0", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
+            Password updated successfully!
+          </p>
+          <Link href="/login" style={{
+            display: "block", textAlign: "center", padding: "0.8rem 1rem",
+            borderRadius: "0.75rem", fontWeight: 700, fontSize: "0.88rem",
+            background: "linear-gradient(135deg, #34d399, #22d3ee)",
+            color: "#051a12", boxShadow: "0 8px 24px rgba(52,211,153,0.25)",
+          }}>
+            Back to login →
+          </Link>
+        </div>
+      ) : (
+        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {step === "email" && (
+            <label>
+              <span style={labelStyle}>Email address</span>
+              <input
+                required type="email" value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                style={inputStyle}
+                onFocus={e => e.target.style.borderColor = "rgba(52,211,153,0.45)"}
+                onBlur={e => e.target.style.borderColor = "rgba(52,211,153,0.12)"}
+              />
+            </label>
+          )}
+
+          {step === "otp" && (
+            <div>
+              <label style={labelStyle}>Verification code</label>
+              <p style={{ color: "#2a5a4a", fontSize: "0.72rem", marginBottom: "0.5rem" }}>
+                Check your email at <strong style={{ color: "#34d399" }}>{email}</strong>
+              </p>
+              <input
+                required inputMode="numeric" pattern="[0-9]{6}" maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                placeholder="123456"
+                style={{
+                  ...inputStyle,
+                  textAlign: "center", fontSize: "1.5rem",
+                  letterSpacing: "0.4em", fontWeight: 700,
+                }}
+                onFocus={e => e.target.style.borderColor = "rgba(52,211,153,0.45)"}
+                onBlur={e => e.target.style.borderColor = "rgba(52,211,153,0.12)"}
+              />
+            </div>
+          )}
+
+          {step === "reset" && (
+            <>
+              <label>
+                <span style={labelStyle}>New password</span>
+                <input
+                  required minLength={8} type="password" value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Min. 8 characters"
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = "rgba(52,211,153,0.45)"}
+                  onBlur={e => e.target.style.borderColor = "rgba(52,211,153,0.12)"}
+                />
+              </label>
+              <label>
+                <span style={labelStyle}>Confirm password</span>
+                <input
+                  required minLength={8} type="password" value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat your new password"
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = "rgba(52,211,153,0.45)"}
+                  onBlur={e => e.target.style.borderColor = "rgba(52,211,153,0.12)"}
+                />
+              </label>
+            </>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%", borderRadius: "0.75rem",
+              padding: "0.8rem 1rem", fontWeight: 700,
+              color: "#051a12",
+              background: loading ? "rgba(52,211,153,0.4)" : "linear-gradient(135deg, #34d399, #22d3ee)",
+              boxShadow: "0 10px 28px rgba(52,211,153,0.2)",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontSize: "0.88rem", transition: "transform 0.2s, box-shadow 0.2s",
+              border: "none",
+            }}
+            onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 14px 36px rgba(52,211,153,0.32)"; }}}
+            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 28px rgba(52,211,153,0.2)"; }}
+          >
+            {loading ? "Please wait…" : step === "email" ? "Send verification code" : step === "otp" ? "Verify & continue" : "Update password"}
+          </button>
+
+          {step !== "complete" && (
+            <Link href="/login" style={{
+              display: "block", textAlign: "center",
+              fontSize: "0.75rem", color: "#2a5a4a",
+              transition: "color 0.2s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.color = "#34d399"}
+              onMouseLeave={e => e.currentTarget.style.color = "#2a5a4a"}
+            >
+              ← Back to login
+            </Link>
+          )}
+        </form>
+      )}
     </div>
   );
 }

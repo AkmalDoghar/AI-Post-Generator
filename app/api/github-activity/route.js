@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchActivitySummary } from "../../../lib/github";
+import { analyzeGitHubStory } from "../../../lib/storyAnalyzer";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -16,7 +17,12 @@ export async function GET(request) {
 
   try {
     const summary = await fetchActivitySummary(username, days);
-    return NextResponse.json(summary);
+    const storyAnalysis = analyzeGitHubStory(summary);
+
+    return NextResponse.json({
+      summary,
+      storyAnalysis,
+    });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

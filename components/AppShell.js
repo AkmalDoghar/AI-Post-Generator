@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import BrandLogo from "./BrandLogo";
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/history", label: "Drafts" },
   { href: "/analytics", label: "Analytics" },
   { href: "/settings", label: "Settings" },
+  { href: "/privacy", label: "Privacy Policy" },
 ];
 
 export default function AppShell({ children }) {
@@ -17,6 +18,7 @@ export default function AppShell({ children }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -32,6 +34,22 @@ export default function AppShell({ children }) {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    }
+
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileOpen]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -99,22 +117,81 @@ export default function AppShell({ children }) {
                 <button onClick={() => router.push("/dashboard?new=1")} className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-cyan-400/40 hover:text-white sm:inline-flex">
                   + New draft
                 </button>
-                <div className="relative">
-                  <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen} className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-1.5 text-left transition hover:border-cyan-400/40">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-cyan-500 text-xs font-bold text-slate-950">
-                    {initials}
-                  </div>
-                  <div className="hidden text-left sm:block">
-                    <div className="text-xs font-medium text-white">{displayName}</div>
-                    <div className="max-w-[12rem] truncate text-[10px] text-slate-400">{user?.email || "Loading account..."}</div>
-                  </div>
-                  <span className="text-xs text-slate-500">⌄</span>
+                <div className="relative" ref={profileRef}>
+                  <button
+                    type="button"
+                    onClick={() => setProfileOpen((open) => !open)}
+                    aria-expanded={profileOpen}
+                    className="flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-slate-900/90 p-1 pr-3 text-left transition hover:border-emerald-400/50 hover:bg-slate-900"
+                  >
+                    {user?.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={displayName}
+                        className="h-8 w-8 rounded-full object-cover border border-emerald-400/40 shadow-sm"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-xs font-extrabold text-slate-950 shadow-sm">
+                        {initials}
+                      </div>
+                    )}
+                    <div className="hidden text-left sm:block">
+                      <div className="text-xs font-semibold text-slate-100">{displayName}</div>
+                      <div className="max-w-[10rem] truncate text-[10px] text-emerald-400/80 font-mono">
+                        {user?.email || "Loading..."}
+                      </div>
+                    </div>
+                    <span className="text-xs text-slate-500 ml-0.5">⌄</span>
                   </button>
-                  {profileOpen && <div className="profile-menu">
-                    <div className="profile-menu-heading"><strong>{displayName}</strong><span>{user?.email || "Account"}</span></div>
-                    <Link href="/settings" onClick={() => setProfileOpen(false)}>Account settings</Link>
-                    <button type="button" onClick={handleLogout}>Log out</button>
-                  </div>}
+
+                  {profileOpen && (
+                    <div className="profile-menu">
+                      <div className="profile-menu-heading">
+                        {user?.avatarUrl ? (
+                          <img
+                            src={user.avatarUrl}
+                            alt={displayName}
+                            className="h-10 w-10 rounded-full object-cover border-2 border-emerald-400/50 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-sm font-black text-slate-950 flex-shrink-0 shadow-md">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <strong>{displayName}</strong>
+                          <span>{user?.email || "Account member"}</span>
+                          {user?.bio && (
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5 italic">
+                              &ldquo;{user.bio}&rdquo;
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="profile-menu-nav-kicker">Workspace</div>
+
+                      <Link href="/settings" onClick={() => setProfileOpen(false)} className="pm-item">
+                        <span>⚙️</span> Account Settings
+                      </Link>
+
+                      <Link href="/privacy" onClick={() => setProfileOpen(false)} className="pm-item">
+                        <span>🛡️</span> Privacy Policy
+                      </Link>
+
+                      <Link href="/workflow" onClick={() => setProfileOpen(false)} className="pm-item">
+                        <span>⚡</span> Workflow & Setup
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="pm-item pm-item-danger"
+                      >
+                        <span>🚪</span> Log out
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
