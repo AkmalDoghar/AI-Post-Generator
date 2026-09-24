@@ -503,14 +503,48 @@ export default function HomePage() {
         /* ─── Footer ─── */
         .gp-footer {
           border-top: 1px solid rgba(52,211,153,0.08);
-          padding: 2rem 0;
-          display: flex;
+          padding: 3.5rem 0 2rem;
+          display: grid;
+          grid-template-columns: 1fr;
+          justify-items: center;
+          gap: 1.5rem;
+          text-align: center;
+        }
+        .gp-footer-brand {
           align-items: center;
-          justify-content: space-between;
+          display: flex;
+          flex-direction: column;
+          gap: 0.9rem;
+        }
+        .gp-footer-brand p {
+          color: #4a7a70;
+          font-size: 0.76rem;
+          line-height: 1.6;
+          max-width: 18rem;
+        }
+        .gp-footer-status {
+          align-items: center;
+          color: #6a9e90;
+          display: inline-flex;
+          font-size: 0.62rem;
+          gap: 0.45rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .gp-footer-status::before {
+          background: #34d399;
+          border-radius: 50%;
+          box-shadow: 0 0 0 3px rgba(52,211,153,0.12);
+          content: "";
+          height: 0.4rem;
+          width: 0.4rem;
         }
         .gp-footer-links {
-          display: flex;
-          gap: 1.75rem;
+          display: grid;
+          gap: 0.75rem 1.5rem;
+          grid-template-columns: repeat(2, minmax(5rem, 1fr));
+          padding-top: 0.25rem;
+          text-align: center;
         }
         .gp-footer-links a {
           color: #3a5e56;
@@ -518,6 +552,19 @@ export default function HomePage() {
           transition: color 0.2s;
         }
         .gp-footer-links a:hover { color: #34d399; }
+        .gp-footer-meta {
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          gap: 0.55rem;
+          text-align: center;
+        }
+        .gp-footer-meta-label {
+          color: #2a4540;
+          font-size: 0.62rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
         .gp-footer-copy {
           color: #2a4540;
           font-size: 0.68rem;
@@ -531,9 +578,26 @@ export default function HomePage() {
           .gp-workflow { grid-template-columns: 1fr; gap: 3rem; }
         }
         @media (max-width: 580px) {
+          .gp-shell { width: min(100% - 2rem, 88rem); }
           .gp-nav { display: none; }
           .gp-cards { grid-template-columns: 1fr; }
           .gp-stats { grid-template-columns: repeat(2, 1fr); }
+          .gp-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            padding: 1.5rem 0;
+          }
+          .gp-footer-brand { gap: 0.7rem; }
+          .gp-footer-links {
+            width: 100%;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem 1.15rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(52,211,153,0.08);
+          }
+          .gp-footer-meta { align-items: center; text-align: center; }
         }
       `}</style>
 
@@ -686,14 +750,21 @@ export default function HomePage() {
 
         {/* ── Footer ── */}
         <footer className="gp-footer">
-          <BrandLogo compact />
+          <div className="gp-footer-brand">
+            <BrandLogo compact />
+            <p>Turn the work you ship into stories people want to follow.</p>
+            <span className="gp-footer-status">Workspace ready</span>
+          </div>
           <div className="gp-footer-links">
             <Link href="/workflow">Workflow</Link>
             <Link href="/signal">Signal</Link>
             <Link href="/privacy">Privacy</Link>
             <Link href="/login">Log in</Link>
           </div>
-          <span className="gp-footer-copy">© 2026 GitPulse Studio</span>
+          <div className="gp-footer-meta">
+            <span className="gp-footer-meta-label">Built for makers</span>
+            <span className="gp-footer-copy">© 2026 GitPulse Studio</span>
+          </div>
         </footer>
       </div>
     </main>

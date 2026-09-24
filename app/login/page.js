@@ -12,7 +12,7 @@ const features = [
 
 export default function LoginPage() {
   return (
-    <main style={{
+    <main className="auth-layout auth-layout-login" style={{
       minHeight: "100vh",
       background: "#050d0b",
       display: "flex",
@@ -44,7 +44,7 @@ export default function LoginPage() {
       </div>
 
       {/* Left Panel — Brand Info */}
-      <div style={{
+      <div className="auth-layout-side auth-layout-login-side" style={{
         flex: "0 0 46%", minHeight: "100vh", padding: "3.5rem 4rem",
         display: "flex", flexDirection: "column", justifyContent: "space-between",
         position: "relative", zIndex: 1,
@@ -122,7 +122,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel — Form */}
-      <div style={{
+      <div className="auth-layout-form" style={{
         flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
         padding: "3rem 2rem", position: "relative", zIndex: 1,
       }}>

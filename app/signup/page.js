@@ -11,7 +11,7 @@ const steps = [
 
 export default function SignupPage() {
   return (
-    <main style={{
+    <main className="auth-layout auth-layout-signup" style={{
       minHeight: "100vh",
       background: "#050d0b",
       display: "flex",
@@ -41,7 +41,7 @@ export default function SignupPage() {
       </div>
 
       {/* Left Panel — Form */}
-      <div style={{
+      <div className="auth-layout-form auth-layout-signup-form" style={{
         flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
         padding: "3rem 2rem", position: "relative", zIndex: 1,
         borderRight: "1px solid rgba(52,211,153,0.08)",
@@ -60,7 +60,7 @@ export default function SignupPage() {
       </div>
 
       {/* Right Panel — Social Proof / Steps */}
-      <div style={{
+      <div className="auth-layout-side auth-layout-signup-side" style={{
         flex: "0 0 46%", minHeight: "100vh", padding: "3.5rem 4rem",
         display: "flex", flexDirection: "column", justifyContent: "center",
         position: "relative", zIndex: 1,

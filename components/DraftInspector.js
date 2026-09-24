@@ -73,27 +73,28 @@ export default function DraftInspector({
       {/* Main Grid: Left Editor | Right Quality Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Editor (7 cols) */}
-        <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white uppercase tracking-wider">
+        <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between space-y-3 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-bold text-white uppercase tracking-wider truncate">
                 Draft · {platformLabel}
               </span>
-              <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">
+              <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 shrink-0">
                 {currentDraft.angleName || "Custom"}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-end sm:self-auto">
               <button
                 onClick={onOpenEvidence}
-                className="text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
+                className="text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors flex items-center gap-1 shrink-0"
               >
-                Inspect Evidence 🔍
+                <span>Inspect Evidence</span>
+                <span>🔍</span>
               </button>
               <button
                 onClick={handleCopy}
-                className={`text-xs font-semibold px-3 py-1 rounded-lg transition-colors ${
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0 ${
                   copied
                     ? "bg-emerald-500 text-slate-950"
                     : "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30"

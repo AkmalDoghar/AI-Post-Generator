@@ -133,8 +133,8 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <div className="studio-page max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <div className="studio-heading flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="settings-page studio-page max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <div className="settings-heading studio-heading flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
             <div className="studio-kicker text-emerald-400 font-semibold text-xs flex items-center gap-1.5 mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400" /> Workspace Control
@@ -152,12 +152,12 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="settings-grid grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Profile Edit & Workspace Preferences */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="settings-main-column lg:col-span-7 space-y-6">
             {/* 01 Profile Information Form */}
-            <form className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4" onSubmit={handleSaveProfile}>
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <form className="settings-panel bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4" onSubmit={handleSaveProfile}>
+              <div className="settings-panel-heading flex items-center justify-between border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center border border-emerald-500/40">
                     01
@@ -179,7 +179,7 @@ export default function SettingsPage() {
               <div className="space-y-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-300 block mb-1">Profile Picture (Avatar URL)</label>
-                  <div className="flex gap-2 items-center">
+                  <div className="settings-avatar-field flex gap-2 items-center">
                     <input
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
@@ -258,8 +258,8 @@ export default function SettingsPage() {
             </form>
 
             {/* 02 Workspace Preferences */}
-            <form className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4" onSubmit={saveSettings}>
-              <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+            <form className="settings-panel bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4" onSubmit={saveSettings}>
+              <div className="settings-panel-heading flex items-center gap-3 border-b border-slate-800 pb-3">
                 <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center border border-emerald-500/40">
                   02
                 </span>
@@ -330,8 +330,8 @@ export default function SettingsPage() {
             </form>
 
             {/* 03 LinkedIn OAuth 2.0 Integration Box */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="settings-panel bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="settings-panel-heading flex items-center justify-between border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center border border-emerald-500/40">
                     03
@@ -354,13 +354,14 @@ export default function SettingsPage() {
               </div>
 
               {linkedinStatus.connected ? (
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-white">
+                <div className="settings-linkedin-connected p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="settings-token-summary flex items-center justify-between">
+                    <span className="settings-connected-profile text-xs font-semibold text-white">
                       Connected Profile: {linkedinStatus.profileName || "LinkedIn Member"}
                     </span>
-                    <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-                      Token Active
+                    <span className="settings-token-badge inline-flex items-center gap-1.5 text-[10px] text-emerald-300 font-semibold bg-emerald-950 px-2 py-1 rounded border border-emerald-800">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                      Active token
                     </span>
                   </div>
 
@@ -415,9 +416,9 @@ export default function SettingsPage() {
           </div>
 
           {/* Right Column: Profile & Connections Overview */}
-          <div className="lg:col-span-5 space-y-6">
-            <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center gap-4">
+          <div className="settings-side-column lg:col-span-5 space-y-6">
+            <section className="settings-profile-card bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="settings-profile-summary flex items-center gap-4">
                 {avatarUrl || user?.avatarUrl ? (
                   <img
                     src={avatarUrl || user?.avatarUrl}
@@ -442,8 +443,8 @@ export default function SettingsPage() {
               )}
             </section>
 
-            <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+            <section className="settings-panel settings-connections bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div className="settings-panel-heading flex items-center gap-3 border-b border-slate-800 pb-3">
                 <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center border border-emerald-500/40">
                   04
                 </span>

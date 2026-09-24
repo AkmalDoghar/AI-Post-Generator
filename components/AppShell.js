@@ -6,11 +6,11 @@ import { useEffect, useState, useRef } from "react";
 import BrandLogo from "./BrandLogo";
 
 const navItems = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/history", label: "Drafts" },
-  { href: "/analytics", label: "Analytics" },
-  { href: "/settings", label: "Settings" },
-  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/dashboard", label: "Overview", icon: "⌂" },
+  { href: "/history", label: "Drafts", icon: "✎" },
+  { href: "/analytics", label: "Analytics", icon: "◒" },
+  { href: "/settings", label: "Settings", icon: "⚙" },
+  { href: "/privacy", label: "Privacy", icon: "◌" },
 ];
 
 export default function AppShell({ children }) {
@@ -18,6 +18,7 @@ export default function AppShell({ children }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const profileRef = useRef(null);
 
   useEffect(() => {
@@ -51,6 +52,31 @@ export default function AppShell({ children }) {
     };
   }, [profileOpen]);
 
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileSidebarOpen]);
+
+  // Close mobile sidebar on Escape key press
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") setMobileSidebarOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
@@ -68,61 +94,147 @@ export default function AppShell({ children }) {
   return (
     <div className="app-shell min-h-screen text-slate-100">
       <div className="mx-auto flex max-w-[1600px]">
-        <aside className="hidden min-h-screen w-72 border-r border-white/10 bg-slate-950/60 p-6 lg:flex lg:flex-col">
-          <div className="mb-10">
-            <BrandLogo compact />
-            <div className="mt-2 pl-1 text-xs text-slate-400">Build in public</div>
+        {/* Workspace Sidebar Drawer (Mobile Slide-out & Desktop Column) */}
+        <aside
+          id="workspace-sidebar"
+          className={`app-sidebar min-h-screen w-72 flex-col border-r border-white/10 bg-slate-950/90 p-5 lg:flex${
+            mobileSidebarOpen ? " app-sidebar-mobile-open" : ""
+          }`}
+        >
+          {/* Sidebar Brand Header */}
+          <div className="app-sidebar-brand mb-6 border-b border-white/10 pb-4">
+            <div className="app-sidebar-topline flex items-center justify-between">
+              <BrandLogo compact />
+              <button
+                type="button"
+                className="app-sidebar-close flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-900/80 text-slate-400 transition hover:border-emerald-400/50 hover:bg-emerald-500/10 hover:text-emerald-300 lg:hidden"
+                onClick={() => setMobileSidebarOpen(false)}
+                aria-label="Close workspace navigation"
+              >
+                <span aria-hidden="true" className="text-lg leading-none">✕</span>
+              </button>
+            </div>
+            <div className="app-sidebar-caption mt-2 flex items-center gap-2 pl-1 text-[10px] uppercase tracking-[0.2em] text-emerald-400/80">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              GitPulse Studio Workspace
+            </div>
           </div>
 
-          <nav className="space-y-2">
-            {navItems.map((item) => {
+          <div className="app-sidebar-section-label mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+            Workspace Navigation
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="app-nav space-y-1.5 flex-1" aria-label="Workspace navigation">
+            {navItems.map((item, index) => {
               const active = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`nav-link flex items-center justify-between rounded-xl px-3 py-2.5 text-sm ${
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className={`nav-link group flex items-center justify-between rounded-xl px-3.5 py-3 text-sm font-medium transition-all ${
                     active
-                      ? "bg-white/8 text-white shadow-inner shadow-white/5"
-                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                      ? "bg-gradient-to-r from-emerald-500/15 to-cyan-500/5 text-emerald-300 border border-emerald-500/30 shadow-sm shadow-emerald-950/40"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white border border-transparent"
                   }`}
                 >
-                  <span>{item.label}</span>
-                  <span className="text-xs text-slate-500">0{navItems.indexOf(item) + 1}</span>
+                  <span className="app-nav-label flex items-center gap-3">
+                    <span
+                      className={`app-nav-icon text-base transition-colors ${
+                        active
+                          ? "text-emerald-400 font-bold"
+                          : "text-slate-400 group-hover:text-emerald-300"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {active && (
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/80" />
+                    )}
+                    <span className="app-nav-number font-mono text-[10px] text-slate-500">
+                      0{index + 1}
+                    </span>
+                  </div>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="mt-auto rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/10 via-slate-900 to-emerald-500/10 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Pro insight</p>
-            <p className="mt-2 text-sm text-slate-200">
-              Your weekly Git activity is trending upward. Keep sharing the progress.
-            </p>
+          {/* Mobile User Profile & Pro Insight Card */}
+          <div className="space-y-3 pt-4 border-t border-slate-800/80 mt-auto">
+            {/* Mobile User Info */}
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={displayName}
+                  className="h-9 w-9 rounded-full object-cover border border-emerald-400/50"
+                />
+              ) : (
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-xs font-black text-slate-950">
+                  {initials}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-white truncate">{displayName}</p>
+                <p className="text-[10px] text-slate-400 truncate">{user?.email || "Workspace User"}</p>
+              </div>
+            </div>
+
+            {/* Pro Insight Card */}
+            <div className="app-sidebar-insight rounded-xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/10 via-slate-900 to-emerald-500/10 p-3">
+              <div className="flex items-start gap-2.5">
+                <span className="text-cyan-300 text-xs mt-0.5">↗</span>
+                <div>
+                  <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-cyan-300">Pro insight</p>
+                  <p className="mt-1 text-xs text-slate-300 leading-snug">
+                    Your weekly Git activity is trending upward. Keep sharing the progress.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </aside>
 
-        <main className="flex-1">
-          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-              <div className="flex items-center gap-3">
-                <div className="lg:hidden"><BrandLogo compact /></div>
-                <div>
+        {/* Main Content Area */}
+        <main className="flex-1 min-w-0 w-full overflow-x-hidden">
+          <header className="app-header sticky top-0 z-20 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
+            <div className="app-header-inner flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+              <div className="app-mobile-brand flex items-center gap-3">
+                <div className="app-mobile-header-actions lg:hidden">
+                  <button
+                    type="button"
+                    className="app-menu-button"
+                    onClick={() => setMobileSidebarOpen((open) => !open)}
+                    aria-expanded={mobileSidebarOpen}
+                    aria-controls="workspace-sidebar"
+                    aria-label={mobileSidebarOpen ? "Close workspace navigation" : "Open workspace navigation"}
+                  >
+                    <span aria-hidden="true">{mobileSidebarOpen ? "×" : "☰"}</span>
+                  </button>
+                  <BrandLogo compact />
+                </div>
+                <div className="app-workspace-title">
                   <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400">Workspace</p>
                   <h1 className="text-lg font-semibold text-white">GitPulse Studio</h1>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <button onClick={() => router.push("/dashboard?new=1")} className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-cyan-400/40 hover:text-white sm:inline-flex">
-                  + New draft
+                <button onClick={() => router.push("/dashboard?new=1")} className="app-new-draft hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-cyan-400/40 hover:text-white sm:inline-flex">
+                  <span aria-hidden="true">+</span> New draft
                 </button>
                 <div className="relative" ref={profileRef}>
                   <button
                     type="button"
                     onClick={() => setProfileOpen((open) => !open)}
                     aria-expanded={profileOpen}
-                    className="flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-slate-900/90 p-1 pr-3 text-left transition hover:border-emerald-400/50 hover:bg-slate-900"
+                    className="app-profile-trigger flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-slate-900/90 p-1 pr-3 text-left transition hover:border-emerald-400/50 hover:bg-slate-900"
                   >
                     {user?.avatarUrl ? (
                       <img
@@ -197,7 +309,17 @@ export default function AppShell({ children }) {
             </div>
           </header>
 
-          <div className="grid-overlay p-4 sm:p-6 lg:p-8">{children}</div>
+          {/* Animated Glassmorphic Mobile Backdrop Overlay */}
+          {mobileSidebarOpen && (
+            <button
+              type="button"
+              className="app-sidebar-backdrop lg:hidden"
+              onClick={() => setMobileSidebarOpen(false)}
+              aria-label="Close workspace navigation"
+            />
+          )}
+
+          <div className="grid-overlay p-4 sm:p-6 lg:p-8 min-w-0 w-full overflow-x-hidden">{children}</div>
         </main>
       </div>
     </div>

@@ -8,9 +8,9 @@ export default function PrivacyPolicyPage() {
 
   return (
     <AppShell>
-      <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
+      <div className="privacy-page max-w-4xl mx-auto py-8 px-4 space-y-8">
         {/* Header */}
-        <div className="border-b border-slate-800 pb-6 space-y-2">
+        <div className="privacy-header border-b border-slate-800 pb-6 space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <span>🛡️ Legal & Privacy</span>
           </div>
@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
 
         {/* Content Sections */}
         <div className="space-y-6 text-slate-300 text-sm leading-relaxed font-sans">
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">01.</span> Introduction & Overview
             </h2>
@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">02.</span> Information We Collect
             </h2>
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
             </div>
           </section>
 
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">03.</span> How We Use Your Information
             </h2>
@@ -71,7 +71,7 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">04.</span> Third-Party Services & AI Processing
             </h2>
@@ -83,7 +83,7 @@ export default function PrivacyPolicyPage() {
             </div>
           </section>
 
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">05.</span> Manual Review & Publishing Safety
             </h2>
@@ -92,7 +92,7 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">06.</span> Data Rights & Account Management
             </h2>
@@ -106,21 +106,21 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
-          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
+          <section className="privacy-card bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3 backdrop-blur-md">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="text-emerald-400">07.</span> Contact Us
             </h2>
             <p className="text-xs">
               If you have any questions or concerns regarding this Privacy Policy or data handling, please reach out to us:
             </p>
-            <div className="text-xs font-mono text-emerald-400 bg-slate-950 p-3 rounded-xl border border-slate-800 inline-block">
+            <div className="privacy-contact text-xs font-mono text-emerald-400 bg-slate-950 p-3 rounded-xl border border-slate-800 inline-block">
               Email: 84pakarmy@gmail.com · GitPulse Studio Support
             </div>
           </section>
         </div>
 
         {/* Footer Navigation */}
-        <div className="pt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <div className="privacy-footer pt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
           <Link href="/dashboard" className="text-emerald-400 hover:underline font-semibold">
             ← Back to Content Studio
           </Link>
