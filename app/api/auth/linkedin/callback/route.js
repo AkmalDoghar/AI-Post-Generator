@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../../../../../lib/db";
 import User from "../../../../../models/User";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "default_gitpulse_secret_key_32_chars_long"
-);
+import { SESSION_COOKIE, verifySessionToken } from "../../../../../lib/auth/session";
 
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
@@ -19,9 +14,12 @@ export async function GET(request) {
     return NextResponse.redirect(`${origin}/settings?linkedin_error=${encodeURIComponent(errorDescription || "Authorization cancelled")}`);
   }
 
-  const clientId = process.env.LINKEDIN_CLIENT_ID || "77sq6tzuliqiib";
-  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || "";
-  const redirectUri = process.env.LINKEDIN_REDIRECT_URI || `${origin}/api/auth/linkedin/callback`;
+  const clientId = process.env.LINKEDIN_CLIENT_ID;
+  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    return NextResponse.redirect(`${origin}/settings?linkedin_error=${encodeURIComponent("LinkedIn OAuth is not configured on this deployment.")}`);
+  }
+  const redirectUri = `${origin}/api/auth/linkedin/callback`;
 
   try {
     // 1. Exchange Code for Access Token
@@ -73,15 +71,11 @@ export async function GET(request) {
 
     // 3. Store Credentials in User DB & Secure Cookies
     await connectToDatabase();
-    const token = cookies().get("token")?.value;
+    const sessionToken = request.cookies.get(SESSION_COOKIE)?.value;
     let userId = null;
 
-    if (token) {
-      try {
-        const verified = await jwtVerify(token, JWT_SECRET);
-        userId = verified.payload.id;
-      } catch {}
-    }
+    const session = await verifySessionToken(sessionToken);
+    userId = session?.sub || null;
 
     if (userId) {
       await User.findByIdAndUpdate(userId, {
