@@ -6,6 +6,7 @@ import AppShell from "../../components/AppShell";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const [appOrigin, setAppOrigin] = useState("");
   const [user, setUser] = useState(null);
 
   // Profile Edit States
@@ -37,6 +38,8 @@ export default function SettingsPage() {
   const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
+    setAppOrigin(window.location.origin);
+
     fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -433,10 +436,10 @@ export default function SettingsPage() {
                   In your LinkedIn Developer App (under <strong>Auth → OAuth 2.0 settings</strong>), add this exact Authorized Redirect URL:
                 </p>
                 <div className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">
-                  http://localhost:3000/api/auth/linkedin/callback
+                  {`${appOrigin || "http://localhost:3000"}/api/auth/linkedin/callback`}
                 </div>
                 <p className="text-slate-500 text-[10px]">
-                  (For production on Vercel: <code className="text-slate-300">https://gitpulse-web.vercel.app/api/auth/linkedin/callback</code>)
+                  Use this exact URL in your LinkedIn Developer App for the current environment.
                 </p>
               </div>
             </div>

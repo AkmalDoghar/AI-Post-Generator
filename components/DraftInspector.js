@@ -73,49 +73,62 @@ export default function DraftInspector({
       {/* Main Grid: Left Editor | Right Quality Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Editor (7 cols) */}
-        <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between space-y-3 shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2 min-w-0">
+        <div className="draft-editor-panel lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between space-y-3 shadow-xl">
+          <div className="draft-editor-header flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-800 pb-3">
+            <div className="draft-editor-title flex items-center gap-2 min-w-0">
+              <span className="draft-editor-kicker">Writing canvas</span>
               <span className="text-xs font-bold text-white uppercase tracking-wider truncate">
                 Draft · {platformLabel}
               </span>
-              <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 shrink-0">
+              <span className="draft-editor-angle text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 shrink-0">
                 {currentDraft.angleName || "Custom"}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 self-end sm:self-auto">
+            <div className="draft-editor-actions flex items-center gap-2 self-end sm:self-auto">
               <button
                 onClick={onOpenEvidence}
-                className="text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors flex items-center gap-1 shrink-0"
+                className="draft-action-button text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors flex items-center gap-1 shrink-0"
+                title="Inspect evidence"
+                aria-label="Inspect evidence"
               >
-                <span>Inspect Evidence</span>
-                <span>🔍</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="6" />
+                  <path d="m16 16 4 4" />
+                </svg>
+                <span className="draft-action-label">Evidence</span>
               </button>
               <button
                 onClick={handleCopy}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0 ${
+                className={`draft-action-button text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0 ${
                   copied
                     ? "bg-emerald-500 text-slate-950"
                     : "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30"
                 }`}
+                title={copied ? "Draft copied" : "Copy draft"}
+                aria-label={copied ? "Draft copied" : "Copy draft"}
               >
-                {copied ? "Copied! ✓" : "Copy Draft"}
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {copied ? <path d="m5 12 4 4L19 6" /> : <><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V6a2 2 0 0 1 2-2h9" /></>}
+                </svg>
+                <span className="draft-action-label">{copied ? "Copied" : "Copy"}</span>
               </button>
             </div>
           </div>
 
-          <textarea
+          <div className="draft-editor-canvas">
+            <textarea
             value={postText}
             onChange={(e) => handleTextChange(e.target.value)}
             rows={12}
             className="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 resize-y font-sans leading-relaxed"
             placeholder="Your generated draft will appear here..."
-          />
+            />
+          </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-            <span>{postText.length} characters</span>
-            <span>Manual review · Edit freely before posting</span>
+          <div className="draft-editor-footer flex items-center justify-between text-[11px] text-slate-500 pt-1">
+            <span className="draft-character-count">{postText.length} characters</span>
+            <span className="draft-review-note"><span aria-hidden="true">●</span> Manual review · Edit freely before posting</span>
           </div>
         </div>
 

@@ -195,7 +195,7 @@ export default function DashboardPage() {
         </div>
 
         {/* 6-Step Workspace */}
-        <div className="dashboard-workspace grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="dashboard-creation-workspace dashboard-workspace grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Activity & Controls Studio (5 cols) */}
           <aside className="dashboard-sidebar lg:col-span-5 space-y-4 lg:space-y-6">
             {/* Mobile Control Studio Toggle Header */}
@@ -228,8 +228,8 @@ export default function DashboardPage() {
             {/* Studio Form & Cards Container */}
             <div className={`dashboard-mobile-studio-content space-y-4 lg:space-y-6 ${mobileStudioExpanded ? "block" : "hidden lg:block"}`}>
               {/* Step 01: Find Signal / GitHub Source */}
-              <div className="dashboard-source-card bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4 backdrop-blur-md shadow-xl">
-                <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+              <div className="dashboard-source-card dashboard-creation-card bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4 backdrop-blur-md shadow-xl">
+                <div className="dashboard-card-heading flex items-center gap-3 border-b border-slate-800 pb-3">
                   <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center border border-emerald-500/40">
                     01
                   </span>
@@ -329,8 +329,8 @@ export default function DashboardPage() {
 
               {/* Step 04: Controls Studio (Platform, Tone, Length) */}
               {summary && (
-                <div className="dashboard-studio-card bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4 backdrop-blur-md shadow-xl">
-                  <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+                <div className="dashboard-studio-card dashboard-creation-card bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4 backdrop-blur-md shadow-xl">
+                  <div className="dashboard-card-heading flex items-center gap-3 border-b border-slate-800 pb-3">
                     <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center border border-emerald-500/40">
                       04
                     </span>
@@ -425,7 +425,7 @@ export default function DashboardPage() {
           </aside>
 
           {/* Right Column: Story Detection, Angles, & Draft Inspector (7 cols) */}
-          <main className="dashboard-results lg:col-span-7 space-y-6">
+          <main className="dashboard-results dashboard-story-canvas lg:col-span-7 space-y-6">
             {!summary && (
               <div className="dashboard-empty bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mx-auto border border-emerald-500/20">
