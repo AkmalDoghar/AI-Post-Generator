@@ -436,7 +436,9 @@ export default function SettingsPage() {
                   In your LinkedIn Developer App (under <strong>Auth → OAuth 2.0 settings</strong>), add this exact Authorized Redirect URL:
                 </p>
                 <div className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">
-                  {`${appOrigin || "http://localhost:3000"}/api/auth/linkedin/callback`}
+                  {appOrigin
+                    ? `${appOrigin}/api/auth/linkedin/callback`
+                    : "Loading current environment URL..."}
                 </div>
                 <p className="text-slate-500 text-[10px]">
                   Use this exact URL in your LinkedIn Developer App for the current environment.
