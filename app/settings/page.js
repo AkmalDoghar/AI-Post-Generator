@@ -149,6 +149,8 @@ export default function SettingsPage() {
       const response = await fetch("/api/auth/me", { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Unable to delete your account.");
+      localStorage.removeItem("gitpulse_dashboard_workspace");
+      localStorage.removeItem("gitpulse_saved_drafts");
       router.replace("/login");
       router.refresh();
     } catch (error) {

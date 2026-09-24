@@ -124,6 +124,17 @@ export default function HistoryPage() {
     setDeleteTarget(null);
   };
 
+  const handleDeleteAll = () => {
+    if (!draftsList.length) return;
+    const confirmed = window.confirm(
+      `Delete all ${draftsList.length} saved drafts? This action cannot be undone.`
+    );
+    if (!confirmed) return;
+    updateDraftsStorage([]);
+    setPreviewDraft(null);
+    setDeleteTarget(null);
+  };
+
   // Save edit preview handler
   const handleSavePreviewEdit = () => {
     if (!previewDraft) return;
@@ -158,6 +169,15 @@ export default function HistoryPage() {
             >
               <span>+</span> New Story
             </Link>
+            <button
+              type="button"
+              onClick={handleDeleteAll}
+              disabled={!draftsList.length}
+              title="Delete all saved drafts"
+              className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 transition-all flex items-center gap-1.5 min-h-[42px] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <span aria-hidden="true">🗑️</span> Delete all
+            </button>
             <div className="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-900/90 border border-slate-800 text-slate-300 min-h-[42px] flex items-center justify-center">
               {filteredDrafts.length} {filteredDrafts.length === 1 ? "draft" : "drafts"}
             </div>

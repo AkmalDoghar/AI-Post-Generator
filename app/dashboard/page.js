@@ -30,6 +30,9 @@ const LENGTHS = [
   { id: "long", label: "Long" },
 ];
 
+const WORKSPACE_STORAGE_KEY = "gitpulse_dashboard_workspace";
+const DRAFTS_STORAGE_KEY = "gitpulse_saved_drafts";
+
 export default function DashboardPage() {
   const [username, setUsername] = useState("");
   const [days, setDays] = useState(7);
@@ -59,6 +62,22 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(WORKSPACE_STORAGE_KEY) || "null");
+      if (!stored) return;
+      setUsername(stored.username || "");
+      setDays(stored.days || 7);
+      setSummary(stored.summary || null);
+      setStoryAnalysis(stored.storyAnalysis || null);
+      setAngle(stored.angle || "auto_ai");
+      setPlatform(stored.platform || "linkedin");
+      setTone(stored.tone || "professional");
+      setLength(stored.length || "medium");
+      setDrafts(Array.isArray(stored.drafts) ? stored.drafts : []);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
     fetch("/api/github-connection")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -75,6 +94,7 @@ export default function DashboardPage() {
       setAngle("auto_ai");
       setPlatform("linkedin");
       setError("");
+      localStorage.removeItem(WORKSPACE_STORAGE_KEY);
       router.replace("/dashboard");
     }
   }, [router]);
@@ -97,6 +117,17 @@ export default function DashboardPage() {
 
       setSummary(data.summary);
       setStoryAnalysis(data.storyAnalysis);
+      persistWorkspace({
+        username: username.trim(),
+        days,
+        summary: data.summary,
+        storyAnalysis: data.storyAnalysis,
+        angle,
+        platform,
+        tone,
+        length,
+        drafts: [],
+      });
 
       await fetch("/api/github-connection", {
         method: "POST",
@@ -107,6 +138,7 @@ export default function DashboardPage() {
       // Auto-trigger initial draft generation
       await generateDrafts({
         activitySummary: data.summary,
+        activityStoryAnalysis: data.storyAnalysis,
         selectedAngle: angle,
         selectedPlatform: platform,
         selectedTone: tone,
@@ -122,6 +154,7 @@ export default function DashboardPage() {
   // Step 2: Generate Post Variations via GitPulse Content Engine
   async function generateDrafts({
     activitySummary = summary,
+    activityStoryAnalysis = storyAnalysis,
     selectedAngle = angle,
     selectedPlatform = platform,
     selectedTone = tone,
@@ -149,11 +182,54 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(data.error || "Failed to generate post draft.");
 
       setDrafts(data.drafts || []);
+      saveGeneratedDrafts(data.drafts || [], {
+        platform: selectedPlatform,
+        tone: selectedTone,
+        length: selectedLength,
+        angle: selectedAngle,
+        summary: activitySummary,
+        storyAnalysis: activityStoryAnalysis,
+      });
     } catch (err) {
       setError(err.message);
     } finally {
       setLoadingDraft(false);
     }
+  }
+
+  function saveGeneratedDrafts(generatedDrafts, settings) {
+    const generatedAt = new Date().toISOString();
+    const historyItems = generatedDrafts.map((draft) => ({
+      id: `generated-${Date.now()}-${draft.id}`,
+      title: draft.title || "Generated draft",
+      platform: PLATFORMS.find((item) => item.id === settings.platform)?.label || settings.platform,
+      date: generatedAt.slice(0, 10),
+      status: "Saved",
+      qualityScore: draft.quality?.overall || 0,
+      angle: draft.angleName || settings.angle,
+      text: draft.postText || "",
+      source: "GitPulse Content Engine",
+    }));
+
+    try {
+      const existing = JSON.parse(localStorage.getItem(DRAFTS_STORAGE_KEY) || "[]");
+      const merged = [...historyItems, ...(Array.isArray(existing) ? existing : [])].slice(0, 100);
+      localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(merged));
+      persistWorkspace({
+        username,
+        days,
+        summary: settings.summary || summary,
+        storyAnalysis: settings.storyAnalysis || storyAnalysis,
+        drafts: generatedDrafts,
+        ...settings,
+      });
+    } catch {}
+  }
+
+  function persistWorkspace(workspace) {
+    try {
+      localStorage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(workspace));
+    } catch {}
   }
 
   const selectedPlatformLabel = useMemo(

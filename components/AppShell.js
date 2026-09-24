@@ -86,6 +86,8 @@ export default function AppShell({ children }) {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    localStorage.removeItem("gitpulse_dashboard_workspace");
+    localStorage.removeItem("gitpulse_saved_drafts");
     router.replace("/login");
     router.refresh();
   };
