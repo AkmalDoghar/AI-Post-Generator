@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AppShell from "../../components/AppShell";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
 
   // Profile Edit States
@@ -31,6 +33,8 @@ export default function SettingsPage() {
   });
 
   const [notification, setNotification] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -125,6 +129,29 @@ export default function SettingsPage() {
     await fetch("/api/github-connection", { method: "DELETE" });
     setGithubConnected(false);
     setGithubUsername("");
+  }
+
+  async function handleDeleteAccount() {
+    if (deletingAccount) return;
+
+    const confirmed = window.confirm(
+      "Delete your GitPulse account permanently? This will remove your profile, settings, and password reset data. This action cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setDeletingAccount(true);
+    setDeleteError("");
+
+    try {
+      const response = await fetch("/api/auth/me", { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Unable to delete your account.");
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      setDeleteError(error.message || "Unable to delete your account.");
+      setDeletingAccount(false);
+    }
   }
 
   const handleConnectLinkedin = () => {
@@ -486,8 +513,31 @@ export default function SettingsPage() {
                 </div>
               </div>
             </section>
+
           </div>
         </div>
+
+        <section className="settings-danger-zone rounded-2xl border border-rose-500/25 bg-rose-950/20 p-5 space-y-3">
+          <div>
+            <h3 className="text-sm font-bold text-rose-200">Delete account</h3>
+            <p className="mt-1 text-xs leading-relaxed text-rose-200/65">
+              Permanently remove your profile, workspace preferences, and password reset data. This cannot be undone.
+            </p>
+          </div>
+          {deleteError && (
+            <p role="alert" className="rounded-lg border border-rose-400/30 bg-rose-950/50 p-2.5 text-xs text-rose-200">
+              {deleteError}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={handleDeleteAccount}
+            disabled={deletingAccount}
+            className="w-full rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-xs font-bold text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {deletingAccount ? "Deleting account..." : "Delete my account"}
+          </button>
+        </section>
       </div>
     </AppShell>
   );

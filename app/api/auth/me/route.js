@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { SESSION_COOKIE, verifySessionToken, createSessionToken, sessionCookieOptions } from "../../../../lib/auth/session";
 import { connectToDatabase } from "../../../../lib/db";
 import User from "../../../../models/User";
+import UserSettings from "../../../../models/UserSettings";
+import PasswordReset from "../../../../models/PasswordReset";
 
 export async function GET(request) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
@@ -110,5 +112,31 @@ export async function PUT(request) {
   } catch (error) {
     console.error("PUT /api/auth/me error:", error);
     return NextResponse.json({ error: error.message || "Failed to update profile" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const session = await verifySessionToken(token);
+
+  if (!session?.sub) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    await connectToDatabase();
+
+    await Promise.all([
+      UserSettings.deleteOne({ userId: session.sub }),
+      PasswordReset.deleteMany({ userId: session.sub }),
+      User.findByIdAndDelete(session.sub),
+    ]);
+
+    const response = NextResponse.json({ success: true });
+    response.cookies.set(SESSION_COOKIE, "", { ...sessionCookieOptions, maxAge: 0 });
+    return response;
+  } catch (error) {
+    console.error("DELETE /api/auth/me error:", error);
+    return NextResponse.json({ error: "Unable to delete your account right now." }, { status: 500 });
   }
 }

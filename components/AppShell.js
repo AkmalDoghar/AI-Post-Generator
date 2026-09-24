@@ -25,7 +25,14 @@ export default function AppShell({ children }) {
     let active = true;
 
     fetch("/api/auth/me")
-      .then((response) => (response.ok ? response.json() : null))
+      .then(async (response) => {
+        if (response.status === 404) {
+          await fetch("/api/auth/logout", { method: "POST" });
+          if (active) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+          return null;
+        }
+        return response.ok ? response.json() : null;
+      })
       .then((data) => {
         if (active && data?.user) setUser(data.user);
       })
