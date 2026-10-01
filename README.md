@@ -1,82 +1,198 @@
-# GitPulse
+# ⚡ GitPulse — AI-Powered Developer Content Generator
 
-Pulls your GitHub activity (commits, PRs, new repos) and drafts a ready-to-review
-social post about it — tuned per platform (LinkedIn, Instagram, Facebook, Twitter/X).
-Nothing posts automatically; you review, edit, and copy it yourself. That's on
-purpose — see "Why manual review first" below.
+GitPulse turns your GitHub activity into professional, ready-to-review social media content.
 
-## Setup
+It analyzes commits, pull requests, repositories, and programming activity, then uses AI to transform that activity into platform-specific posts for **LinkedIn, Instagram, Facebook, and X/Twitter**.
+
+GitPulse is designed around a **human-review-first workflow** — generated content is reviewed and edited before publishing.
+
+## 🌐 Live Demo
+
+**[ai-post-generater.vercel.app](https://ai-post-generater.vercel.app/)**
+
+## ✨ Features
+
+- 🐙 GitHub activity analysis
+- 🤖 AI-powered post generation
+- 💼 LinkedIn-ready content
+- 📸 Instagram-ready content
+- 📘 Facebook-ready content
+- 𝕏 X/Twitter-ready content
+- 📝 Review and edit generated drafts
+- 🔐 User authentication
+- 🗄️ MongoDB-backed data
+- 👤 GitHub OAuth support
+- 📊 Developer activity summaries
+- ⚡ Next.js App Router architecture
+- 🎨 Responsive Tailwind CSS interface
+
+## 🔄 How It Works
+
+```text
+GitHub Activity
+      │
+      ▼
+GitHub REST API
+      │
+      ▼
+Activity Analysis
+      │
+      ▼
+AI Content Generation
+      │
+      ▼
+Platform-Specific Draft
+      │
+      ▼
+Review → Edit → Copy
+```
+
+GitPulse collects relevant GitHub activity and summarizes it before sending the information to the AI generation layer.
+
+The generated content is then adapted for different social platforms while keeping the content grounded in the user's actual development activity.
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- Next.js
+- React
+- Tailwind CSS
+- JavaScript
+
+### Backend
+
+- Next.js App Router
+- API Routes
+- GitHub REST API
+
+### AI
+
+- Anthropic SDK
+- Claude
+
+### Database & Authentication
+
+- MongoDB
+- GitHub OAuth
+- HttpOnly sessions
+- bcrypt
+
+### Deployment
+
+- Vercel
+
+## 📂 Project Structure
+
+```text
+app/
+├── api/
+│   ├── github-activity/
+│   ├── generate-post/
+│   └── auth/
+│
+components/
+├── ...
+│
+lib/
+├── github.js
+├── generatePost.js
+└── ...
+
+models/
+├── ...
+│
+public/
+└── ...
+```
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/AkmalDoghar/AI-Post-Generator.git
+```
+
+### 2. Navigate to the project
+
+```bash
+cd AI-Post-Generator
+```
+
+### 3. Install dependencies
 
 ```bash
 npm install
-cp .env.example .env.local
 ```
 
-Fill in `.env.local`:
+### 4. Configure environment variables
 
-- `GITHUB_TOKEN` — a [personal access token](https://github.com/settings/tokens)
-  with `public_repo` and `read:user` scope (classic token is fine for this).
-- `GITHUB_USERNAME` — your GitHub username (optional if you always type it in the UI).
-- `ANTHROPIC_API_KEY` — from [console.anthropic.com](https://console.anthropic.com).
-- `MONGODB_URI` — your MongoDB Atlas connection string.
-- `AUTH_SECRET` — a random string of at least 32 characters used to sign HttpOnly sessions.
-- `AUTH_URL` — the app URL, `http://localhost:3000` for local development.
-- `AUTH_GITHUB_CALLBACK_URL` — exactly `http://localhost:3000/api/auth/github/callback` for local development.
-- `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` — optional GitHub OAuth app credentials.
+Create a `.env.local` file based on `.env.example`.
 
-For GitHub OAuth, set the callback URL in the OAuth app to
-`http://localhost:3000/api/auth/github/callback` (or the matching production URL).
-Email/password signup hashes passwords with bcrypt and creates default user settings.
-Sessions use signed HttpOnly cookies. GitHub access tokens are only used during the
-OAuth exchange and are not stored in the User document.
+Required configuration includes:
 
-Then run:
+```env
+GITHUB_TOKEN=
+GITHUB_USERNAME=
+ANTHROPIC_API_KEY=
+MONGODB_URI=
+AUTH_SECRET=
+AUTH_URL=
+AUTH_GITHUB_CALLBACK_URL=
+AUTH_GITHUB_ID=
+AUTH_GITHUB_SECRET=
+```
+
+Never commit real API keys or secrets to the repository.
+
+### 5. Start the development server
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`, enter a GitHub username, pull activity, and generate
-a draft per platform.
+Open:
 
-## How it works
-
-```
-GitHub Events API  →  lib/github.js       (summarize commits, PRs, new repos, languages)
-                            ↓
-             app/api/github-activity      (API route, returns JSON summary)
-                            ↓
-          lib/generatePost.js + Claude    (turns summary into a platform-tuned draft)
-                            ↓
-             app/api/generate-post        (API route, returns draft text)
-                            ↓
-                    app/page.js           (dashboard: review, edit, copy)
+```text
+http://localhost:3000
 ```
 
-## Why manual review first
+## 🎯 Project Purpose
 
-Instagram and LinkedIn restrict fully automated posting on personal accounts, and
-even where auto-posting is technically possible, publishing without a human check
-is a fast way to post something embarrassing or inaccurate. The generator is also
-instructed never to invent commits or numbers that aren't in your real activity data.
-Review-then-copy is the safer default; automate publishing once you trust the drafts.
+GitPulse was built to solve a practical developer-content problem: turning everyday coding activity into useful professional content without manually writing every post from scratch.
 
-## Next steps to extend this
+The project combines:
 
-- **Scheduling**: run `github-activity` + `generate-post` on a daily/weekly cron
-  (GitHub Actions or Vercel Cron) and email or Slack yourself the draft instead of
-  needing to open the dashboard.
-- **Auto-publish**: once you're comfortable, wire up:
-  - LinkedIn — [Share API](https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/share-api)
-  - Meta (Facebook Pages + Instagram Business) — [Graph API](https://developers.facebook.com/docs/graph-api)
-  - Twitter/X — [API v2](https://developer.twitter.com/en/docs/twitter-api)
-- **Visuals**: generate a simple stats card (commits, streak, top language) as an
-  image to attach to Instagram/LinkedIn posts.
-- **Analytics**: store each published post + its engagement numbers in a database
-  (Supabase/Postgres) to see what kind of updates perform best.
-- **Auth**: swap the manual `GITHUB_USERNAME`/token for GitHub OAuth if you want
-  other people to use this too, not just you.
+- GitHub API integration
+- AI content generation
+- Authentication
+- Database integration
+- Platform-specific content formatting
+- Human-in-the-loop review
 
-## Stack
+## 🔮 Future Improvements
 
-Next.js (App Router) · Tailwind CSS · Anthropic SDK · GitHub REST API
+Possible future improvements include:
+
+- Scheduled content generation
+- Direct LinkedIn publishing
+- Facebook and Instagram integrations
+- X/Twitter publishing
+- Generated visual/stat cards
+- Post analytics
+- Engagement tracking
+- Multi-user workspace support
+- Automated weekly developer summaries
+
+## 👨‍💻 Developer
+
+**Muhammad Akmal**
+
+- 🌐 Portfolio: [akmalcode.vercel.app](https://akmalcode.vercel.app/)
+- 💼 LinkedIn: [Muhammad Akmal](https://www.linkedin.com/in/muhammad-akmal-dev/)
+- 🐙 GitHub: [AkmalDoghar](https://github.com/AkmalDoghar)
+
+---
+
+⭐ If you find GitPulse interesting, consider giving the repository a star.
